@@ -35,7 +35,7 @@ def command():
         # =====================
         if cmd == "help":
             if user["problem"] is None:
-                return jsonify({"output": "No problem selected. Use: use <1-6>"})
+                return jsonify({"output": "No problem selected. Type: use <1-4>"})
             return jsonify({"output": problem_map[user["problem"]].info})
 
         # =====================
@@ -65,7 +65,7 @@ def command():
             user["data"] = {}
 
             return jsonify({
-                "output": f"=== Problem {p} ===\n{problem_map[p].info}"
+                "output": f"Problem {p} : {problem_map[p].info}"
             })
 
         # =====================
