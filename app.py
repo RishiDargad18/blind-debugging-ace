@@ -18,7 +18,8 @@ def command():
             return jsonify({"output": "Invalid request"}), 400
 
         user_id = data.get("user")
-        cmd = data.get("cmd", "").strip()
+        cmd = data.get("cmd", "")
+        cmd = cmd.strip().lower()
 
         if not user_id or not cmd:
             return jsonify({"output": "Invalid input"}), 400
