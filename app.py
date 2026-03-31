@@ -43,25 +43,26 @@ def command():
         # =====================
         # SWITCH PROBLEM
         # =====================
-        if parts[0] == "use":
-            if len(parts) < 2:
-                return jsonify({"output": "Usage: use <problem_number>"})
+        if cmd.startswith("use"):
+    parts = cmd.split()
 
-            try:
-                p = int(parts[1])
-            except ValueError:
-                return jsonify({"output": "Invalid problem number"})
+    if len(parts) != 2:
+        return jsonify({"output": "Usage: use <problem_number>"})
 
-            if p not in problem_map:
-                return jsonify({"output": "Problem does not exist"})
+    try:
+        p = int(parts[1])
+    except:
+        return jsonify({"output": "Invalid problem number"})
 
-            user["problem"] = p
-            user["data"] = {}  # reset state
+    if p not in problem_map:
+        return jsonify({"output": "Problem does not exist"})
 
-            return jsonify({
-                "output": f"{problem_map[p].info}"
-            })
+    user["problem"] = p
+    user["data"] = {}
 
+    return jsonify({
+        "output": f"{problem_map[p].info}"
+    })
         # =====================
         # RUN PROBLEM
         # =====================
