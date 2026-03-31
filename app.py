@@ -63,6 +63,14 @@ def command():
     return jsonify({
         "output": f"{problem_map[p].info}"
     })
+
+    # =====================
+# FORCE PROBLEM SELECTION
+# =====================
+if user["problem"] is None:
+    return jsonify({
+        "output": "No problem selected. Use: use <number>"
+    })
         # =====================
         # RUN PROBLEM
         # =====================
