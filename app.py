@@ -46,23 +46,23 @@ def command():
         if cmd.startswith("use"):
             parts = cmd.split()
 
-        if len(parts) != 2:
-            return jsonify({"output": "Usage: use <problem_number>"})
-    
-        try:
-            p = int(parts[1])
-        except:
-            return jsonify({"output": "Invalid problem number"})
-    
-        if p not in problem_map:
-            return jsonify({"output": "Problem does not exist"})
-    
-        user["problem"] = p
-        user["data"] = {}
-    
-        return jsonify({
-            "output": f"{problem_map[p].info}"
-        })
+            if len(parts) != 2:
+                return jsonify({"output": "Usage: use <problem_number>"})
+        
+            try:
+                p = int(parts[1])
+            except:
+                return jsonify({"output": "Invalid problem number"})
+        
+            if p not in problem_map:
+                return jsonify({"output": "Problem does not exist"})
+        
+            user["problem"] = p
+            user["data"] = {}
+        
+            return jsonify({
+                "output": f"{problem_map[p].info}"
+            })
 
     # =====================
 # FORCE PROBLEM SELECTION
