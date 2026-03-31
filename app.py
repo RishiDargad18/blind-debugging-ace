@@ -73,7 +73,7 @@ def command():
         # =====================
         if user["problem"] is None:
             return jsonify({
-                "output": "No problem selected. Use: use <1-6>"
+                "output": "No problem selected. Use: use <1-4>"
             })
 
         # =====================
