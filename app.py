@@ -4,6 +4,7 @@ from core.dispatcher import problem_map
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -15,24 +16,27 @@ def command():
         data = request.get_json()
 
         if not data:
-            return jsonify({"output": "Invalid request"}), 400
+            return jsonify({"output": "Invalid request"})
 
         user_id = data.get("user")
         cmd = data.get("cmd", "")
-        cmd = cmd.strip().lower()
 
         if not user_id or not cmd:
-            return jsonify({"output": "Invalid input"}), 400
+            return jsonify({"output": "Invalid input"})
 
+        # normalize input
+        cmd = cmd.strip().lower()
         user = get_user(user_id)
-        parts = cmd.split()
+
+        print("CMD:", repr(cmd))  # debug log
 
         # =====================
         # HELP
         # =====================
         if cmd == "help":
-            p = user["problem"]
-            return jsonify({"output": problem_map[p].info})
+            if user["problem"] is None:
+                return jsonify({"output": "No problem selected. Use: use <1-6>"})
+            return jsonify({"output": problem_map[user["problem"]].info})
 
         # =====================
         # CLEAR
@@ -41,46 +45,44 @@ def command():
             return jsonify({"output": "__CLEAR__"})
 
         # =====================
-        # SWITCH PROBLEM
+        # USE COMMAND
         # =====================
         if cmd.startswith("use"):
             parts = cmd.split()
 
             if len(parts) != 2:
                 return jsonify({"output": "Usage: use <problem_number>"})
-        
+
             try:
                 p = int(parts[1])
             except:
                 return jsonify({"output": "Invalid problem number"})
-        
+
             if p not in problem_map:
                 return jsonify({"output": "Problem does not exist"})
-        
+
             user["problem"] = p
             user["data"] = {}
-        
+
             return jsonify({
-                "output": f"{problem_map[p].info}"
+                "output": f"=== Problem {p} ===\n{problem_map[p].info}"
             })
 
-    # =====================
-# FORCE PROBLEM SELECTION
-# =====================
+        # =====================
+        # FORCE PROBLEM SELECT
+        # =====================
         if user["problem"] is None:
             return jsonify({
-            "output": "⚠️ Select a problem first\nUse: use <1-6>"
-        })
+                "output": "No problem selected. Use: use <1-6>"
+            })
+
         # =====================
         # RUN PROBLEM
         # =====================
-        p = user["problem"]
-
-        if p not in problem_map:
-            return jsonify({"output": "Invalid problem state"})
-
         try:
+            p = user["problem"]
             result = problem_map[p].run(user["data"], cmd)
+
             return jsonify({"output": str(result)})
 
         except Exception as e:
@@ -88,11 +90,13 @@ def command():
             return jsonify({"output": "Invalid input. Type 'help'."})
 
     except Exception as e:
-        # catch ANY unexpected crash
         print("[FATAL ERROR]:", e)
-        return jsonify({"output": "Server error. Please try again."})
+        return jsonify({"output": "Server error. Try again."})
 
 
-import os
+# =====================
+# RUN (LOCAL ONLY)
+# =====================
 if __name__ == '__main__':
+    import os
     app.run(host='0.0.0.0', port=5000)
