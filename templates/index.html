@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ACE Blind Debug</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+</head>
+<body style="margin:0; background:black;">
+
+
+<div id="terminal" style="height:100vh; width:100vw;"></div>
+<script>
+    
+const term = new Terminal({
+    cursorBlink: true,
+    scrollback: 2000,   // 🔥 THIS FIXES YOUR ISSUE
+    theme: {
+        background: "#000000",
+        foreground: "#00ff00",
+        cursor: "#ffffff"
+    }
+});
+
+term.open(document.getElementById("terminal"));
+
+let user = prompt("Enter team name:");
+let buffer = "";
+let isTyping = false;
+
+// =======================
+// TYPEWRITER FUNCTION
+// =======================
+const fitAddon = new FitAddon.FitAddon();
+term.loadAddon(fitAddon);
+fitAddon.fit();
+
+window.addEventListener("resize", () => {
+    fitAddon.fit();
+});
+
+async function typeLine(text, speed = 30) {
+    isTyping = true;
+
+    for (let i = 0; i < text.length; i++) {
+        term.write(text[i]);
+        await new Promise(r => setTimeout(r, speed));
+    }
+
+    term.write("\r\n");
+    isTyping = false;
+}
+
+// =======================
+// BOOT SEQUENCE
+// =======================
+async function bootSequence() {
+
+    await typeLine("Initializing ACE System...");
+    await typeLine("Loading modules...");
+    await typeLine("Connecting to secure server...");
+
+    // fake error
+    term.write("\x1b[1;31m");
+    await typeLine("ERROR: Connection timeout", 10);
+    term.write("\x1b[0m");
+
+    await typeLine("Retrying...");
+    await new Promise(r => setTimeout(r, 400));
+
+    await typeLine("Re-establishing connection...");
+    await typeLine("Connection established.");
+
+    await typeLine("Decrypting challenge layers...");
+
+    term.write("\x1b[1;31m");
+    await typeLine("WARNING: Partial corruption detected", 10);
+    term.write("\x1b[0m");
+
+    await new Promise(r => setTimeout(r, 400));
+
+    await typeLine("Applying recovery patch...");
+    await typeLine("System stabilized.");
+
+    term.write("\x1b[1;32m");
+    await typeLine("Access granted.");
+    term.write("\x1b[0m");
+
+    await typeLine("");
+    await typeLine("ACE Blind Debugging");
+    await typeLine("Type 'use 1' to start");
+    await typeLine("Type 'help' anytime");
+
+    term.write("> ");
+}
+
+// =======================
+// KEY HANDLER
+// =======================
+term.onKey(async (e) => {
+
+    if (isTyping) return; // prevent glitches
+
+    const key = e.key;
+
+    if (e.domEvent.key === "Enter") {
+
+        term.write("\r\n");
+
+        // processing effect
+        
+
+        let res = await fetch("/command", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        user: user,
+        cmd: buffer
+    })
+});
+
+        let data = await res.json();
+
+        // clear command
+        if (data.output === "__CLEAR__") {
+            term.clear();
+            term.write("> ");
+            buffer = "";
+            return;
+        }
+
+        // color output
+        if (data.output.toLowerCase().includes("error") || data.output.toLowerCase().includes("invalid")) {
+            term.write("\x1b[1;31m");
+            await typeLine(data.output, 5);
+            term.write("\x1b[0m");
+        } else {
+            term.write("\x1b[1;36m");
+            await typeLine(data.output, 5);
+            term.write("\x1b[0m");
+        }
+
+        term.write("> ");
+        buffer = "";
+    }
+
+    else if (e.domEvent.key === "Backspace") {
+    if (buffer.length > 0) {
+        buffer = buffer.slice(0, -1);
+
+        // FULL LINE REDRAW (no cursor glitch)
+        term.write("\r> " + buffer + " ");
+        term.write("\b");
+    }
+}
+
+    else {
+        buffer += key;
+
+// redraw full line instead of appending
+term.write("\r> " + buffer);
+    }
+});
+
+// =======================
+// START
+// =======================
+bootSequence();
+</script>
+
+</body>
+</html>
