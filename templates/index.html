@@ -84,13 +84,11 @@ term.element.addEventListener("wheel", (e) => {
 
 term.element.style.userSelect = "none";
 
-let user;
+// 🔥 UPDATED PART STARTS HERE
+let user = "";
+let isEnteringName = true;
+// 🔥 UPDATED PART ENDS HERE
 
-setTimeout(() => {
-    user = prompt("Enter team name:");
-
-    if (!user) user = "guest";
-}, 100);
 let buffer = "";
 let isTyping = false;
 
@@ -186,7 +184,7 @@ async function bootSequence() {
 // INPUT HANDLER
 // =======================
 term.onKey(async (e) => {
-    
+
     if (contestOver) return;
     if (isTyping) return;
 
@@ -195,6 +193,26 @@ term.onKey(async (e) => {
     if (e.domEvent.key === "Enter") {
 
         term.write("\r\n");
+
+        // 🔥 HANDLE NAME INPUT
+        if (isEnteringName) {
+            user = buffer.trim();
+
+            if (!user) {
+                term.write("Please enter a valid name\r\n> ");
+                buffer = "";
+                return;
+            }
+
+            isEnteringName = false;
+
+            term.write("Welcome " + user + "\r\n\r\n");
+
+            await bootSequence();
+
+            buffer = "";
+            return;
+        }
 
         if (buffer.startsWith("use")) {
             await glitchEffect();
@@ -213,12 +231,11 @@ term.onKey(async (e) => {
 
         let data = await res.json();
 
-if (buffer.startsWith("use")) {
-    let parts = buffer.split(" ");
-    let num = parts[1];
-
-    document.getElementById("status").innerText = "Problem " + num;
-}
+        if (buffer.startsWith("use")) {
+            let parts = buffer.split(" ");
+            let num = parts[1];
+            document.getElementById("status").innerText = "Problem " + num;
+        }
 
         if (data.output === "__CLEAR__") {
             term.clear();
@@ -267,16 +284,15 @@ if (buffer.startsWith("use")) {
     }
 
     else {
-
         buffer += key;
         term.write("\r> " + buffer);
     }
 });
 
 // =======================
-// TIMER
+// TIMER (unchanged)
 // =======================
-const duration = 60 * 60; // seconds
+const duration = 60 * 60;
 const endTime = Date.now() + duration * 1000;
 
 setInterval(() => {
@@ -306,11 +322,10 @@ setInterval(() => {
 }, 1000);
 
 // =======================
-// START
+// START (UPDATED)
 // =======================
-bootSequence();
+term.write("Enter team name:\r\n> ");
 
 </script>
-
 </body>
 </html>
