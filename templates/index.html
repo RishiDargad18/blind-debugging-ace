@@ -121,7 +121,12 @@ term.onKey(async (e) => {
         cmd: buffer
     })
 });
-
+term.attachCustomKeyEventHandler((e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        return false; // block
+    }
+    return true;
+});
         let data = await res.json();
 
         // clear command
