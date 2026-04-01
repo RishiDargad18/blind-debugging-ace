@@ -84,7 +84,13 @@ term.element.addEventListener("wheel", (e) => {
 
 term.element.style.userSelect = "none";
 
-let user = prompt("Enter team name:");
+let user;
+
+setTimeout(() => {
+    user = prompt("Enter team name:");
+
+    if (!user) user = "guest";
+}, 100);
 let buffer = "";
 let isTyping = false;
 
@@ -204,8 +210,6 @@ term.onKey(async (e) => {
                 cmd: buffer
             })
         });
-
-        let data = await res.json();
 
         let data = await res.json();
 
