@@ -7,19 +7,25 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 </head>
+
 <body style="margin:0; background:black; color:#00ff00; font-family:monospace;">
 
 <div style="display:flex; height:100vh;">
 
     <!-- TERMINAL -->
-    <div id="terminal" style="flex:3;"></div>
+
     <!-- SIDE PANEL -->
     <div style="flex:1; border-left:1px solid #00ff00; padding:10px;">
         <h3>ACE SYSTEM</h3>
+
         <div id="status">No problem selected</div>
+
         <hr style="border-color:#00ff00;">
+
         <div id="timer">Time Left: --:--</div>
+
         <hr style="border-color:#00ff00;">
+
         <div>
             Commands:
             <br>use &lt;1-4&gt;
@@ -30,29 +36,32 @@
 
 </div>
 
+<div id="terminal" style="height:100vh; width:100vw; flex:3;"></div>
 
-<div id="terminal" style="height:100vh; width:100vw;"></div>
 <div style="
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-pointer-events:none;
-background: repeating-linear-gradient(
-    0deg,
-    rgba(0,255,0,0.05),
-    rgba(0,255,0,0.05) 1px,
-    transparent 1px,
-    transparent 3px
-);
-z-index:999;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,0,0.05),
+        rgba(0,255,0,0.05) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    z-index:999;
 "></div>
+
 <script>
+
 let contestOver = false;
+
 const term = new Terminal({
     cursorBlink: true,
-    scrollback: 2000,   // 🔥 THIS FIXES YOUR ISSUE
+    scrollback: 2000,
     theme: {
         background: "#000000",
         foreground: "#00ff00",
@@ -62,7 +71,7 @@ const term = new Terminal({
 
 term.open(document.getElementById("terminal"));
 
-    term.attachCustomKeyEventHandler((e) => {
+term.attachCustomKeyEventHandler((e) => {
     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         return false;
     }
@@ -74,13 +83,13 @@ term.element.addEventListener("wheel", (e) => {
 }, { passive: false });
 
 term.element.style.userSelect = "none";
-    
+
 let user = prompt("Enter team name:");
 let buffer = "";
 let isTyping = false;
 
 // =======================
-// TYPEWRITER FUNCTION
+// FIT ADDON
 // =======================
 const fitAddon = new FitAddon.FitAddon();
 term.loadAddon(fitAddon);
@@ -90,6 +99,9 @@ window.addEventListener("resize", () => {
     fitAddon.fit();
 });
 
+// =======================
+// TYPEWRITER
+// =======================
 async function typeLine(text, speed = 30) {
     isTyping = true;
 
@@ -101,19 +113,28 @@ async function typeLine(text, speed = 30) {
     term.write("\r\n");
     isTyping = false;
 }
+
+// =======================
+// GLITCH
+// =======================
 async function glitchEffect() {
     const chars = "!@#$%^&*()_+=-{}[]";
+
     for (let i = 0; i < 5; i++) {
         let line = "";
+
         for (let j = 0; j < 20; j++) {
             line += chars[Math.floor(Math.random() * chars.length)];
         }
+
         term.writeln("\x1b[1;31m" + line + "\x1b[0m");
+
         await new Promise(r => setTimeout(r, 50));
     }
 }
+
 // =======================
-// BOOT SEQUENCE
+// BOOT
 // =======================
 async function bootSequence() {
 
@@ -121,7 +142,6 @@ async function bootSequence() {
     await typeLine("Loading modules...");
     await typeLine("Connecting to secure server...");
 
-    // fake error
     term.write("\x1b[1;31m");
     await typeLine("ERROR: Connection timeout", 10);
     term.write("\x1b[0m");
@@ -157,13 +177,12 @@ async function bootSequence() {
 }
 
 // =======================
-// KEY HANDLER
+// INPUT HANDLER
 // =======================
 term.onKey(async (e) => {
-    if (contestOver) {
-        return; // completely block input
-    }
-    if (isTyping) return; // prevent glitches
+
+    if (contestOver) return;
+    if (isTyping) return;
 
     const key = e.key;
 
@@ -171,27 +190,27 @@ term.onKey(async (e) => {
 
         term.write("\r\n");
 
-        // processing effect
         if (buffer.startsWith("use")) {
-    await glitchEffect();
-}
+            await glitchEffect();
+        }
 
         let res = await fetch("/command", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        user: user,
-        cmd: buffer
-    })
-});
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user: user,
+                cmd: buffer
+            })
+        });
 
         let data = await res.json();
+
         if (buffer.startsWith("use")) {
-    document.getElementById("status").innerText = buffer;
-}
-        // clear command
+            document.getElementById("status").innerText = buffer;
+        }
+
         if (data.output === "__CLEAR__") {
             term.clear();
             term.write("> ");
@@ -199,56 +218,59 @@ term.onKey(async (e) => {
             return;
         }
 
-        // color output
         if (data.output.toLowerCase().includes("error") || data.output.toLowerCase().includes("invalid")) {
+
             term.write("\x1b[1;31m");
             term.write("\x1b[1;36m");
+
             await typeLine(data.output, 5);
+
             term.write("\x1b[0m");
-            
-            // flash effect
-            document.body.style.boxShadow = "0 0 25px #00ff00";
-            setTimeout(() => {
-                document.body.style.boxShadow = "none";
-            }, 100);
-            
+
         } else {
+
             term.write("\x1b[1;36m");
             term.write("\x1b[1;36m");
+
             await typeLine(data.output, 5);
+
             term.write("\x1b[0m");
-            
-            // flash effect
-            document.body.style.boxShadow = "0 0 25px #00ff00";
-            setTimeout(() => {
-                document.body.style.boxShadow = "none";
-            }, 100);
         }
+
+        document.body.style.boxShadow = "0 0 25px #00ff00";
+
+        setTimeout(() => {
+            document.body.style.boxShadow = "none";
+        }, 100);
 
         term.write("> ");
         buffer = "";
     }
 
     else if (e.domEvent.key === "Backspace") {
-    if (buffer.length > 0) {
-        buffer = buffer.slice(0, -1);
 
-        // FULL LINE REDRAW (no cursor glitch)
-        term.write("\r> " + buffer + " ");
-        term.write("\b");
+        if (buffer.length > 0) {
+            buffer = buffer.slice(0, -1);
+
+            term.write("\r> " + buffer + " ");
+            term.write("\b");
+        }
     }
-}
 
     else {
-        buffer += key;
 
-// redraw full line instead of appending
-term.write("\r> " + buffer);
+        buffer += key;
+        term.write("\r> " + buffer);
     }
 });
-let timeLeft = 60 * 60; // adjust
+
+// =======================
+// TIMER
+// =======================
+let timeLeft = 60 * 60;
 
 setInterval(() => {
+
     let min = Math.floor(timeLeft / 60);
     let sec = timeLeft % 60;
 
@@ -256,6 +278,7 @@ setInterval(() => {
         `Time Left: ${min}:${sec.toString().padStart(2, '0')}`;
 
     if (timeLeft <= 0) {
+
         contestOver = true;
 
         term.write("\n");
@@ -268,11 +291,14 @@ setInterval(() => {
     }
 
     timeLeft--;
+
 }, 1000);
+
 // =======================
 // START
 // =======================
 bootSequence();
+
 </script>
 
 </body>
