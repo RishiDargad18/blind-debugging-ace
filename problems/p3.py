@@ -10,8 +10,4 @@ def run(user, cmd):
 
     return res[::-1]
 
-info = """Problem 3:
-Input: lowercase string
-
-Example: abc
-"""
+info = """Input: lowercase string (Example: abc)"""
