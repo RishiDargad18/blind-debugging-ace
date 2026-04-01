@@ -56,7 +56,17 @@
 "></div>
 
 <script>
+function enterFullscreen() {
+    const elem = document.documentElement;
 
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
+}
 let contestOver = false;
 
 const term = new Terminal({
@@ -180,7 +190,10 @@ async function bootSequence() {
 // INPUT HANDLER
 // =======================
 term.onKey(async (e) => {
-
+    if (!window.fullscreenTriggered) {
+        enterFullscreen();
+        window.fullscreenTriggered = true;
+    }
     if (contestOver) return;
     if (isTyping) return;
 
