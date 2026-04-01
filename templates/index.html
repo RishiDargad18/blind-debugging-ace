@@ -29,7 +29,7 @@
 
         <div>
             Commands:
-            <br>use &lt;1-4&gt;
+            <br>use &lt;1-5&gt;
             <br>help
             <br>clear
         </div>
@@ -207,9 +207,14 @@ term.onKey(async (e) => {
 
         let data = await res.json();
 
-        if (buffer.startsWith("use")) {
-            document.getElementById("status").innerText = buffer;
-        }
+        let data = await res.json();
+
+if (buffer.startsWith("use")) {
+    let parts = buffer.split(" ");
+    let num = parts[1];
+
+    document.getElementById("status").innerText = "Problem " + num;
+}
 
         if (data.output === "__CLEAR__") {
             term.clear();
