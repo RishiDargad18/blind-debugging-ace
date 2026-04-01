@@ -36,7 +36,7 @@
 
 </div>
 
-<div id="terminal" style="height:100vh; width:100vw; flex:3;"></div>
+<div id="terminal" style="height:100vh; width:100vw;"></div>
 
 <div style="
     position:fixed;
@@ -267,17 +267,23 @@ term.onKey(async (e) => {
 // =======================
 // TIMER
 // =======================
-let timeLeft = 60 * 60;
+const duration = 60 * 60; // seconds
+const endTime = Date.now() + duration * 1000;
 
 setInterval(() => {
 
-    let min = Math.floor(timeLeft / 60);
-    let sec = timeLeft % 60;
+    let now = Date.now();
+    let remaining = Math.floor((endTime - now) / 1000);
+
+    if (remaining < 0) remaining = 0;
+
+    let min = Math.floor(remaining / 60);
+    let sec = remaining % 60;
 
     document.getElementById("timer").innerText =
         `Time Left: ${min}:${sec.toString().padStart(2, '0')}`;
 
-    if (timeLeft <= 0) {
+    if (remaining <= 0 && !contestOver) {
 
         contestOver = true;
 
@@ -286,11 +292,7 @@ setInterval(() => {
         term.write("=== CONTEST ENDED ===\n");
         term.write("Submissions are closed.\n");
         term.write("\x1b[0m");
-
-        return;
     }
-
-    timeLeft--;
 
 }, 1000);
 
