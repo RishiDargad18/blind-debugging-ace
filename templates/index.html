@@ -7,7 +7,29 @@
     <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 </head>
-<body style="margin:0; background:black;">
+<body style="margin:0; background:black; color:#00ff00; font-family:monospace;">
+
+<div style="display:flex; height:100vh;">
+
+    <!-- TERMINAL -->
+    <div id="terminal" style="flex:3;"></div>
+
+    <!-- SIDE PANEL -->
+    <div style="flex:1; border-left:1px solid #00ff00; padding:10px;">
+        <h3>ACE SYSTEM</h3>
+        <div id="status">No problem selected</div>
+        <hr style="border-color:#00ff00;">
+        <div id="timer">Time Left: --:--</div>
+        <hr style="border-color:#00ff00;">
+        <div>
+            Commands:
+            <br>use &lt;1-6&gt;
+            <br>help
+            <br>clear
+        </div>
+    </div>
+
+</div>
 
 
 <div id="terminal" style="height:100vh; width:100vw;"></div>
