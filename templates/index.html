@@ -25,6 +25,19 @@ const term = new Terminal({
 
 term.open(document.getElementById("terminal"));
 
+    term.attachCustomKeyEventHandler((e) => {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        return false;
+    }
+    return true;
+});
+
+term.element.addEventListener("wheel", (e) => {
+    e.preventDefault();
+}, { passive: false });
+
+term.element.style.userSelect = "none";
+    
 let user = prompt("Enter team name:");
 let buffer = "";
 let isTyping = false;
@@ -121,12 +134,7 @@ term.onKey(async (e) => {
         cmd: buffer
     })
 });
-term.attachCustomKeyEventHandler((e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-        return false; // block
-    }
-    return true;
-});
+
         let data = await res.json();
 
         // clear command
